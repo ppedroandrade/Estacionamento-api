@@ -21,31 +21,34 @@ public class ModeloController {
     @Autowired
     private ModeloService modeloService;
 
-    /*public ModeloController(ModeloRepository modeloRepository){
-        this.modeloRepository = modeloRepository;
-    }*/
-
+    // Encontra um modelo pelo ID (caminho "/api/modelo/{id}")
     @GetMapping("/{id}")
     public ResponseEntity<?> findByIdPath(@PathVariable("id") final Long id){
         final Modelo modelo = this.modeloRepository.findById(id).orElse(null);
         return modelo==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(modelo);
     }
+
+    // Encontra um modelo pelo ID (requisição GET "/api/modelo?id={id}")
     @GetMapping
     public ResponseEntity<?> findByIdRequest(@RequestParam("id") final Long id){
         final Modelo modelo = this.modeloRepository.findById(id).orElse(null);
         return modelo==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(modelo);
     }
+
+    // Retorna a lista completa de modelos (requisição GET "/api/modelo/lista")
     @GetMapping("/lista")
     public ResponseEntity<?> listaCompleta(){
         return ResponseEntity.ok(this.modeloRepository.findAll());
     }
+
+    // Retorna os modelos ativos (requisição GET "/api/modelo/ativo")
     @GetMapping("/ativo")
     public ResponseEntity<?> findByAtivo() {
         List<Modelo> modelos = modeloRepository.findByAtivo();
         return ResponseEntity.ok(modelos);
     }
 
-
+    // Cadastra um novo modelo (requisição POST "/api/modelo")
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody final Modelo modelo){
         try {
@@ -57,6 +60,7 @@ public class ModeloController {
         return ResponseEntity.ok("Registro cadastrado com sucesso");
     }
 
+    // Edita um modelo existente (requisição PUT "/api/modelo?id={id}")
     @PutMapping
     public ResponseEntity<?> editar(@RequestParam("id") final Long id, @RequestBody final Modelo modelo){
         try {
@@ -71,6 +75,7 @@ public class ModeloController {
         }
     }
 
+    // Deleta um modelo pelo ID (requisição DELETE "/api/modelo?id={id}")
     @DeleteMapping
     public ResponseEntity<?> deletar(@RequestParam("id") final Long id){
         final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);

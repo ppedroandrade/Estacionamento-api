@@ -20,24 +20,34 @@ public class MarcaController {
     @Autowired
     private MarcaService marcaService;
 
+    // Encontra uma marca pelo ID (caminho "/api/marca/{id}")
     @GetMapping("/{id}")
     public ResponseEntity<?> findByIdPath(@PathVariable("id") final Long id){
         final Marca marca = this.marcaRepository.findById(id).orElse(null);
         return marca==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(marca);
-        }
+    }
+    
+    // Encontra uma marca pelo ID (requisição GET "/api/marca?id={id}")
     @GetMapping
     public ResponseEntity<?> findByIdRequest(@RequestParam("id") final Long id){
         final Marca marca = this.marcaRepository.findById(id).orElse(null);
         return marca==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(marca);
     }
+    
+    // Retorna a lista completa de marcas (requisição GET "/api/marca/lista")
     @GetMapping("/lista")
-    public ResponseEntity<?> listaCompleta(){return ResponseEntity.ok(this.marcaRepository.findAll());}
+    public ResponseEntity<?> listaCompleta(){
+        return ResponseEntity.ok(this.marcaRepository.findAll());
+    }
+    
+    // Retorna as marcas ativas (requisição GET "/api/marca/ativo")
     @GetMapping("/ativo")
     public ResponseEntity<?> findByAtivo() {
         List<Marca> marcas = marcaRepository.findByAtivo();
         return ResponseEntity.ok(marcas);
     }
 
+    // Cadastra uma nova marca (requisição POST "/api/marca")
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody final Marca marca){
         try {
@@ -48,6 +58,8 @@ public class MarcaController {
         }
         return ResponseEntity.ok("Registro cadastrado com sucesso");
     }
+    
+    // Edita uma marca existente (requisição PUT "/api/marca?id={id}")
     @PutMapping
     public ResponseEntity<?> editar(@RequestParam("id") final Long id, @RequestBody final Marca marca){
         try{
@@ -61,6 +73,8 @@ public class MarcaController {
         }
         return ResponseEntity.ok("Registro atualizado com sucesso");
     }
+    
+    // Deleta uma marca pelo ID (requisição DELETE "/api/marca?id={id}")
     @DeleteMapping
     public ResponseEntity<?> deletar(@RequestParam("id") final Long id){
         final Marca marcaBanco = this.marcaRepository.findById(id).orElse(null);
