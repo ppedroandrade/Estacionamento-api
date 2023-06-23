@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
+
 @Service
 public class CondutorService {
     @Autowired
@@ -19,71 +21,53 @@ public class CondutorService {
 
     @Transactional
     public void cadastraCondutor(Condutor condutor){
-        // Verifica se o condutor possui um nome
+        if(condutor.getId()!=null){
+            throw new RuntimeException("O id deve ser gerado pelo banco");
+        }
         if(condutor.getNome()==null){
             throw new RuntimeException("Condutor não possui um nome (deve conter!)");
         }
-        
-        // Valida o número de telefone do condutor
         if(this.validaTelefone.validaTelefone(condutor.getTelefone())){
-            throw new RuntimeException("Telefone inválido");
+            throw new RuntimeException("Telefone ínvalido");
         }
-        
-        // Valida o CPF do condutor
         if (this.validaCPF.isCPF(condutor.getCpf()) == false) {
-            throw new RuntimeException("CPF do condutor está incorreto");
+            throw new RuntimeException("Cpf de condutor está incorreto");
         }
-        
-        // Verifica se o nome do condutor excede o limite de caracteres
-        if(condutor.getNome().length() > 100){
-            throw new RuntimeException("Nome do condutor excedeu o limite (100 caracteres!)");
+        if(condutor.getNome().length()<3 || condutor.getNome().length() > 100){
+            throw new RuntimeException("Nome de condutor está errado (de 3 a 100 caracteres!)");
         }
-        
-        // Verifica se o CPF já existe no banco de dados
         if(condutorRepository.findByCpf(condutor.getCpf())!=null){
             throw new RuntimeException("O CPF já existe");
         }
-        
-        // Salva o condutor no banco de dados
+        condutor.setTempoPago(LocalTime.of(0, 0, 0));
+        condutor.setTempoDesconto(LocalTime.of(0, 0, 0));
+
         this.condutorRepository.save(condutor);
     }
 
     @Transactional
     public void atualizaCondutor(final Long id, Condutor condutor){
-        // Busca o condutor no banco de dados com base no ID fornecido
         final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
-        
-        // Verifica se o condutor foi encontrado ou se o ID fornecido é diferente do ID do condutor encontrado
         if(condutorBanco==null || !condutorBanco.getId().equals(condutor.getId())){
-            throw new RuntimeException("Não foi possível encontrar o registro informado");
+            throw new RuntimeException("Não foi possivel encontrar o registro informado");
         }
-        
-        // Verifica se o condutor possui um nome
         if(condutor.getNome()==null){
             throw new RuntimeException("Condutor não possui um nome (deve conter!)");
         }
-        
-        // Valida o número de telefone do condutor
         if(this.validaTelefone.validaTelefone(condutor.getTelefone())){
-            throw new RuntimeException("Telefone inválido");
+            throw new RuntimeException("Telefone ínvalido");
         }
-        
-        // Valida o CPF do condutor
         if (this.validaCPF.isCPF(condutor.getCpf()) == false) {
-            throw new RuntimeException("CPF do condutor está incorreto");
+            throw new RuntimeException("Cpf de condutor está incorreto");
         }
-        
-        // Verifica se o nome do condutor excede o limite de caracteres
-        if(condutor.getNome().length() > 100){
-            throw new RuntimeException("Nome do condutor excedeu o limite (100 caracteres!)");
+        if(condutor.getNome().length()<3 || condutor.getNome().length() > 100){
+            throw new RuntimeException("Nome de condutor está errado (de 3 a 100 caracteres!)");
         }
-        
-        // Verifica se o CPF já existe no banco de dados
-        if(condutorRepository.findByCpf(condutor.getCpf())!=null){
-            throw new RuntimeException("O CPF já existe");
+        if(condutor.getCadastro()==null || "".equals(condutor.getCadastro())){
+            condutor.setCadastro(condutorRepository.findById(condutor.getId()).get().getCadastro());
         }
-        
-        // Salva as alterações do condutor no banco de dados
+
         this.condutorRepository.save(condutor);
     }
+
 }

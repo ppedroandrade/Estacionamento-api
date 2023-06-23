@@ -1,5 +1,6 @@
 package br.com.uniamerica.estacionamento.controller;
 
+import br.com.uniamerica.estacionamento.config.Recibo;
 import br.com.uniamerica.estacionamento.entity.Movimentacao;
 import br.com.uniamerica.estacionamento.repository.MovimentacaoRepository;
 import br.com.uniamerica.estacionamento.service.MovimentacaoService;
@@ -8,6 +9,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 
 @Controller
@@ -18,33 +21,22 @@ public class MovimentacaoController {
     @Autowired
     private MovimentacaoService movimentacaoService;
 
-    // Encontra uma movimentação pelo ID (caminho "/api/movimentacao/{id}")
     @GetMapping("/{id}")
     public ResponseEntity<?> findByIdPath(@PathVariable("id") final Long id){
         final Movimentacao movimentacao = this.movimentacaoRepository.findById(id).orElse(null);
-        return movimentacao==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(movimentacao);
+        return movimentacao==null ? ResponseEntity.badRequest().body("Nennhum valor encontrado") : ResponseEntity.ok(movimentacao);
     }
-
-    // Encontra uma movimentação pelo ID (requisição GET "/api/movimentacao?id={id}")
     @GetMapping
     public ResponseEntity<?> findByIdRequest(@RequestParam("id") final Long id){
         final Movimentacao movimentacao = this.movimentacaoRepository.findById(id).orElse(null);
         return movimentacao==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") :  ResponseEntity.ok(movimentacao);
     }
-
-    // Retorna a lista completa de movimentações (requisição GET "/api/movimentacao/lista")
     @GetMapping("/lista")
-    public ResponseEntity<?> listaCompleta(){
-        return ResponseEntity.ok(this.movimentacaoRepository.findAll());
-    }
+    public ResponseEntity<?> listaCompleta(){return ResponseEntity.ok(this.movimentacaoRepository.findAll());}
+    @GetMapping("/aberta")
+    public ResponseEntity<?> findByAberta(){return ResponseEntity.ok(this.movimentacaoRepository.findByAberta());}
 
-    // Retorna as movimentações abertas (requisição GET "/api/movimentacao/abertas")
-    @GetMapping("/abertas")
-    public ResponseEntity<?> findByAberta(){
-        return ResponseEntity.ok(this.movimentacaoRepository.findByAberta());
-    }
 
-    // Cadastra uma nova movimentação (requisição POST "/api/movimentacao")
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody final Movimentacao movimentacao){
         try{
@@ -53,15 +45,13 @@ public class MovimentacaoController {
         catch(Exception e){
             return ResponseEntity.badRequest().body("Error " + e.getMessage());
         }
-        return ResponseEntity.ok("Registro cadastrado com sucesso");
+        return ResponseEntity.ok(Recibo.gerar(movimentacao.getEntrada(), movimentacao.getSaida(), movimentacaoRepository.findById(movimentacao.getId()).get().getCondutor().getNome(), movimentacaoRepository.findById(movimentacao.getId()).get().getVeiculo().getPlaca(), movimentacao.getTempo(), movimentacao.getTempoMulta(), movimentacao.getTempoDesconto(), movimentacao.getValorTotal()));
     }
 
-    // Edita uma movimentação existente (requisição PUT "/api/movimentacao?id={id}")
     @PutMapping
     public ResponseEntity<?> editar(@RequestParam("id") final Long id, @RequestBody final Movimentacao movimentacao){
         try{
-            this.movimentacaoService.atuaizaMovimentacao(id, movimentacao);
-            return ResponseEntity.ok("Registro atualizado com sucesso");
+            this.movimentacaoService.atualizaMovimentacao(id, movimentacao);
         }
         catch(DataIntegrityViolationException e){
             return ResponseEntity.internalServerError().body("Error " + e.getCause().getCause().getMessage());
@@ -69,17 +59,16 @@ public class MovimentacaoController {
         catch(RuntimeException e){
             return ResponseEntity.internalServerError().body("Error " + e.getMessage());
         }
+        return ResponseEntity.ok(Recibo.gerar(movimentacao.getEntrada(), movimentacao.getSaida(), movimentacaoRepository.findById(movimentacao.getId()).get().getCondutor().getNome(), movimentacaoRepository.findById(movimentacao.getId()).get().getVeiculo().getPlaca(), movimentacao.getTempo(), movimentacao.getTempoMulta(), movimentacao.getTempoDesconto(), movimentacao.getValorTotal()));
     }
-
-    // Deleta uma movimentação pelo ID (caminho "/api/movimentacao/{id}")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletaAtivo(@PathVariable("id") final Long id){
-        final Movimentacao movimentacao = this.movimentacaoRepository.findById(id).orElse(null);
-        if(movimentacao==null){
-            return ResponseEntity.badRequest().body("Não foi possível desativar a flag");
+    @DeleteMapping
+    public ResponseEntity <?> deletar(@RequestParam("id") final Long id){
+        final Movimentacao movimentacaoBanco = this.movimentacaoRepository.findById(id).orElse(null);
+        if(movimentacaoBanco.isAtivo()) {
+            movimentacaoBanco.setAtivo(false);
+            this.movimentacaoRepository.save(movimentacaoBanco);
+            return ResponseEntity.ok("Registro desativado");
         }
-        movimentacao.setAtivo(false);
-        movimentacaoRepository.save(movimentacao);
-        return ResponseEntity.ok("Flag desativada com sucesso");
+        return ResponseEntity.internalServerError().body("Erro no delete, a flag ja está desativada");
     }
 }

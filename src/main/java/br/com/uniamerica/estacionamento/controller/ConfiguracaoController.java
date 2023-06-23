@@ -20,28 +20,17 @@ public class ConfiguracaoController {
     @Autowired
     private ConfiguracaoService configuracaoService;
 
-    // Método para obter uma configuração por ID usando caminho na URL
     @GetMapping("/{id}")
     public ResponseEntity<?> findByIdPath(@PathVariable("id") Long id){
         final Configuracao configuracao = this.configuracaoRepository.findById(id).orElse(null);
         return configuracao==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(configuracao);
     }
-
-    // Método para obter uma configuração por ID usando parâmetro de requisição
     @GetMapping
     public ResponseEntity<?> findByIdRequest(@RequestParam("id") Long id){
         final Configuracao configuracao = this.configuracaoRepository.findById(id).orElse(null);
         return configuracao==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(configuracao);
     }
 
-    // Método para obter configurações ativas
-    @GetMapping("/ativo")
-    public ResponseEntity<?> findByAtivo() {
-        List<Configuracao> configuracao = configuracaoRepository.findByAtivo();
-        return ResponseEntity.ok(configuracao);
-    }
-
-    // Método para cadastrar uma configuração
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody final Configuracao configuracao){
         try {
@@ -53,7 +42,6 @@ public class ConfiguracaoController {
         return ResponseEntity.ok("Registro cadastrado com sucesso");
     }
     
-    // Método para editar uma configuração
     @PutMapping
     public ResponseEntity<?> editar(@RequestParam("id") Long id, @RequestBody Configuracao configuracao){
         try {

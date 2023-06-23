@@ -21,66 +21,62 @@ public class CondutorController {
     @Autowired
     private CondutorService condutorService;
 
-    // Método para obter um condutor por ID usando caminho na URL
     @GetMapping("/{id}")
     public ResponseEntity<?> findByIdPath(@PathVariable("id") final Long id){
         final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
         return condutor==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(condutor);
     }
-
-    // Método para obter um condutor por ID usando parâmetro de requisição
     @GetMapping
     public ResponseEntity<?> findByIdReques(@RequestParam("id") final Long id){
         final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
         return condutor==null ? ResponseEntity.badRequest().body("Nenhum valor encontrado") : ResponseEntity.ok(condutor);
     }
-
-    // Método para obter a lista completa de condutores
     @GetMapping("/lista")
     public ResponseEntity<?> listaCompleta(){ return ResponseEntity.ok(this.condutorRepository.findAll());}
-
-    // Método para obter condutores ativos
     @GetMapping("/ativo")
     public ResponseEntity<?> findByAtivo() {
         List<Condutor> condutores = condutorRepository.findByAtivo();
         return ResponseEntity.ok(condutores);
     }
 
-    // Método para cadastrar um condutor
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody final Condutor condutor) {
+    public  ResponseEntity<?> cadastrar(@RequestBody final Condutor condutor) {
         try {
             this.condutorService.cadastraCondutor(condutor);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro " + e.getMessage());
         }
         return ResponseEntity.ok("Registro cadastrado com sucesso");
     }
 
-    // Método para editar um condutor
     @PutMapping
     public ResponseEntity<?> editar(@RequestParam("id") final Long id, @RequestBody final Condutor condutor){
         try{
             this.condutorService.atualizaCondutor(id, condutor);
-        } catch(DataIntegrityViolationException e){
+        }
+        catch(DataIntegrityViolationException e){
             return ResponseEntity.internalServerError().body("Error " + e.getCause().getCause().getMessage());
-        } catch(RuntimeException e){
+        }
+        catch(RuntimeException e){
             return ResponseEntity.internalServerError().body("Error" + e.getMessage());
         }
         return ResponseEntity.ok("Registro atualizado com sucesso");
     }
-
-    // Método para deletar um condutor
     @DeleteMapping
-    public ResponseEntity<?> deletar(@RequestParam("id") final Long id){
+    public ResponseEntity <?> deletar(@RequestParam("id") final Long id){
         final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
         try{
             this.condutorRepository.delete(condutorBanco);
-            return ResponseEntity.ok("Registro deletado");
-        } catch(DataIntegrityViolationException e){
-            condutorBanco.setAtivo(false);
-            this.condutorRepository.save(condutorBanco);
-            return ResponseEntity.internalServerError().body("Erro " + e.getCause().getCause().getMessage());
         }
+        catch(RuntimeException e){
+            if(condutorBanco.isAtivo()) {
+                condutorBanco.setAtivo(false);
+                this.condutorRepository.save(condutorBanco);
+                return ResponseEntity.internalServerError().body("Erro no delete, flag desativada!");
+            }
+            return ResponseEntity.internalServerError().body("Erro no delete, a flag ja está desativada");
+        }
+        return ResponseEntity.ok("Registro deletado");
     }
 }
