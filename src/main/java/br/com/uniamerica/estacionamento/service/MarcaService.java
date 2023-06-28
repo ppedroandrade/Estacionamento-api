@@ -16,7 +16,7 @@ public class MarcaService {
         if(marca.getId()!=null){
             throw new RuntimeException("O id deve ser gerado pelo banco");
         }
-        if("".equals(marca.getNome())){
+        if("".equals(marca.getNome()) || marca.getNome() == null){
             throw new RuntimeException("Marca não possui um nome (deve conter!)");
         }
         if(marca.getNome().length()<3 || marca.getNome().length() > 50){
