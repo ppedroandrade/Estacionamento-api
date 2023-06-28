@@ -49,8 +49,8 @@ public class VeiculoController {
         return ResponseEntity.ok("Registro cadastrado com sucesso");
     }
 
-    @PutMapping
-    public ResponseEntity<?> editar(@RequestParam("id") final Long id, @RequestBody final Veiculo veiculo){
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editar(@PathVariable("id") final Long id, @RequestBody final Veiculo veiculo){
         try{
             this.veiculoService.atualizaVeiculo(id, veiculo);
         }
@@ -62,8 +62,8 @@ public class VeiculoController {
         }
         return ResponseEntity.ok("Registro atualizado com sucesso");
     }
-    @DeleteMapping
-    public ResponseEntity <?> deletar(@RequestParam("id") final Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity <?> deletar(@PathVariable("id") final Long id){
         final Veiculo veiculoBanco = this.veiculoRepository.findById(id).orElse(null);
         try{
             this.veiculoRepository.delete(veiculoBanco);

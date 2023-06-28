@@ -50,8 +50,8 @@ public class CondutorController {
         return ResponseEntity.ok("Registro cadastrado com sucesso");
     }
 
-    @PutMapping
-    public ResponseEntity<?> editar(@RequestParam("id") final Long id, @RequestBody final Condutor condutor){
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editar(@PathVariable("id") final Long id, @RequestBody final Condutor condutor){
         try{
             this.condutorService.atualizaCondutor(id, condutor);
         }
@@ -63,8 +63,8 @@ public class CondutorController {
         }
         return ResponseEntity.ok("Registro atualizado com sucesso");
     }
-    @DeleteMapping
-    public ResponseEntity <?> deletar(@RequestParam("id") final Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity <?> deletar(@PathVariable("id") final Long id){
         final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
         try{
             this.condutorRepository.delete(condutorBanco);

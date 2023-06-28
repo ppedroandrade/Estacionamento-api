@@ -27,7 +27,7 @@ public class CondutorService {
         if(condutor.getNome()==null){
             throw new RuntimeException("Condutor não possui um nome (deve conter!)");
         }
-        if(this.validaTelefone.validaTelefone(condutor.getTelefone())){
+        if(!this.validaTelefone.validaTelefone(condutor.getTelefone())){
             throw new RuntimeException("Telefone ínvalido");
         }
         if (this.validaCPF.isCPF(condutor.getCpf()) == false) {
@@ -54,7 +54,7 @@ public class CondutorService {
         if(condutor.getNome()==null){
             throw new RuntimeException("Condutor não possui um nome (deve conter!)");
         }
-        if(this.validaTelefone.validaTelefone(condutor.getTelefone())){
+        if(!this.validaTelefone.validaTelefone(condutor.getTelefone())){
             throw new RuntimeException("Telefone ínvalido");
         }
         if (this.validaCPF.isCPF(condutor.getCpf()) == false) {

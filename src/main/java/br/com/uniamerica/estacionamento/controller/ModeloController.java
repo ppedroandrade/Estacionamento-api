@@ -57,8 +57,8 @@ public class ModeloController {
         return ResponseEntity.ok("Registro cadastrado com sucesso");
     }
 
-    @PutMapping
-    public ResponseEntity<?> editar(@RequestParam("id") final Long id, @RequestBody final Modelo modelo){
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editar(@PathVariable("id") final Long id, @RequestBody final Modelo modelo){
         try {
             this.modeloService.atualizaModelo(id, modelo);
             return ResponseEntity.ok("Registro atualizado com sucesso");

@@ -60,8 +60,8 @@ public class VeiculoService {
         if(veiculo.getTipo()==null){
             throw new RuntimeException("O veiculo não possui um tipo (deve conter!)");
         }
-        if(veiculoRepository.findByPlaca(veiculo.getPlaca())!=null){
-            throw new RuntimeException("A placa do veiculo ja existe");
+        if(veiculoRepository.findByPlaca(veiculo.getPlaca())!=null || veiculo.getPlaca()==null){
+            veiculo.setPlaca(veiculoRepository.findById(veiculo.getId()).get().getPlaca());
         }
         if(veiculo.getCadastro()==null || "".equals(veiculo.getCadastro())){
             veiculo.setCadastro(veiculoRepository.findById(veiculo.getId()).get().getCadastro());
